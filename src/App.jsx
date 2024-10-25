@@ -1,4 +1,3 @@
-import { useState } from 'react'; // استيراد useState من React
 import './App.css'; // استيراد ملف CSS الرئيسي
 
 import Home from './components/Home/Home'; // استيراد مكون Home
@@ -7,7 +6,6 @@ import Brands from './components/Brands/Brands'; // استيراد مكون Bran
 import Cart from './components/Cart/Cart'; // استيراد مكون Cart
 import Categories from './components/Categories/Categories'; // استيراد مكون Categories
 // import Contact from './components/Contact/Contact'; 
-// import Footer from './components/Footer/Footer'; 
 import LayOut from './components/LayOut/LayOut'; // استيراد مكون LayOut
 // import Loader from './components/Loader/Loader'; 
 import Login from './components/Login/Login'; // استيراد مكون Login
@@ -22,7 +20,7 @@ import UserTokenContextProvider from './components/Context/UserTokenContext';
 import ProductIdProvider from './components/Context/ProductDetails';
 import ProtectedRoutes from './components/ProtectedRoutes/ProtectedRoutes';
 import ProtectedRoutes2 from './components/ProtectedRoutes/ProtectedRoutesLogin';
-import { CartContext, CartProvider } from './components/Context/CartContext';
+import { CartProvider } from './components/Context/CartContext';
 import Checkout from './components/Checkout/Checkout';
 
 function App() {

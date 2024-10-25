@@ -9,8 +9,6 @@ export default function Cart() {
   const { setCartId } = useContext(CartContext);
   const [cart, setCart] = useState({});
   const [loading, setLoading] = useState(true);
-  const [discount, setDiscount] = useState(0);
-  const [voucherMessage, setVoucherMessage] = useState('');
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -38,18 +36,6 @@ export default function Cart() {
       await RemoveItem(id, setCart);
     } catch (error) {
       console.error('Failed to remove item:', error);
-    }
-  };
-
-  const handleApplyVoucher = (e) => {
-    e.preventDefault();
-    const voucherCode = e.target.voucher.value;
-
-    if (voucherCode === 'Hussien') {
-      setDiscount(10);
-      setVoucherMessage('Voucher applied successfully!');
-    } else {
-      setVoucherMessage('Invalid voucher code');
     }
   };
 
@@ -87,41 +73,49 @@ export default function Cart() {
   async function Mines(productId, currentCount) {
     const token = localStorage.getItem('userToken');
     if (!token) {
-      console.error('User token is missing');
-      return;
+        console.error('User token is missing');
+        return;
     }
 
-    if (currentCount > 1) {
-      try {
-        let response = await axios.put(
-          `https://ecommerce.routemisr.com/api/v1/cart/${productId}`,
-          { count: currentCount - 1 },
-          { headers: { token, 'Content-Type': 'application/json' } }
-        );
+    try {
+        if (currentCount > 1) {
+            // تقليل عدد المنتج بمقدار واحد
+            let response = await axios.put(
+                `https://ecommerce.routemisr.com/api/v1/cart/${productId}`,
+                { count: currentCount - 1 },
+                { headers: { token, 'Content-Type': 'application/json' } }
+            );
 
-        setCart((prevCart) => {
-          const updatedProducts = prevCart.data.products.map((product) => {
-            if (product.product._id === productId) {
-              return { ...product, count: product.count - 1 };
-            }
-            return product;
-          });
-          return { ...prevCart, data: { ...prevCart.data, products: updatedProducts } };
-        });
+            setCart((prevCart) => {
+                const updatedProducts = prevCart.data.products.map((product) => {
+                    if (product.product._id === productId) {
+                        return { ...product, count: product.count - 1 };
+                    }
+                    return product;
+                });
+                return { ...prevCart, data: { ...prevCart.data, products: updatedProducts } };
+            });
 
-        console.log('Update count success:', response.data);
-      } catch (error) {
+            console.log('Update count success:', response.data);
+        } else if (currentCount === 1) {
+            // حذف المنتج إذا كان عدد المنتجات 1
+            let response = await axios.delete(
+                `https://ecommerce.routemisr.com/api/v1/cart/${productId}`,
+                { headers: { token } }
+            );
+
+            setCart((prevCart) => {
+                const updatedProducts = prevCart.data.products.filter(product => product.product._id !== productId);
+                return { ...prevCart, data: { ...prevCart.data, products: updatedProducts } };
+            });
+
+            console.log('Product removed success:', response.data);
+        }
+    } catch (error) {
         console.error('Error:', error.response?.data || error.message);
-      }
     }
-  }
+}
 
-
-
-
-  const calculateTotalAfterDiscount = () => {
-    return (cart.data.totalCartPrice * (1 - discount / 100)).toFixed(2);
-  };
 
   return (
     <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
@@ -216,27 +210,9 @@ export default function Cart() {
                 <p className="text-xl font-semibold text-gray-900 dark:text-white">Order summary</p>
 
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Subtotal</span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">${cart.data.totalCartPrice}</span>
-                </div>
-
-                {discount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Discount ({discount}%)</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">-${(cart.data.totalCartPrice * (discount / 100)).toFixed(2)}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Total</span>
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">${calculateTotalAfterDiscount()}</span>
+                  <span className="text-lg font-bold text-gray-900 dark:text-white">${cart.data.totalCartPrice}</span>
                 </div>
-
-                <form onSubmit={handleApplyVoucher}>
-                  <input type="text" name="voucher" className="mt-4 block w-full border border-gray-300 p-2 rounded-md" placeholder="Enter voucher code" />
-                  <button type="submit" className="mt-2 w-full rounded-md bg-blue-600 py-2 text-white">Apply</button>
-                  {voucherMessage && <p className="mt-2 text-sm text-red-500">{voucherMessage}</p>}
-                </form>
 
                 <button onClick={handleClearCart} className="mt-4 w-full rounded-md bg-red-600 py-2 text-white">Clear Cart</button>
                 <NavLink to="/" className="mt-2 block w-full rounded-md bg-gray-300 py-2 text-center">Continue Shopping</NavLink>
