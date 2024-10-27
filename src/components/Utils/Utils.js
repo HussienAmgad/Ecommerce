@@ -192,6 +192,47 @@ export async function handleAddTowhishlist(Id) {
   }
 }
 
+
+export async function handleTowhishlist(Id, setColor, wishlist, setWishlist) {
+  const isInWishlist = wishlist.some(item => item.id === Id);
+
+  try {
+    if (!isInWishlist) {
+      // إضافة إلى المفضلة
+      let response = await axios.post(
+        "https://ecommerce.routemisr.com/api/v1/wishlist",
+        { productId: Id },
+        { headers: { token: localStorage.getItem('userToken') } }
+      );
+      toast.success(response.data.message);
+      console.log('Product added to wishlist:', response.data);
+      
+      // تحديث اللون للمنتج المحدد فقط
+      setColor(prevColors => ({ ...prevColors, [Id]: '#ff0000' }));
+      setWishlist(prevWishlist => [...prevWishlist, { id: Id }]);
+    } else {
+      // إزالة من المفضلة
+      let response = await axios.delete(
+        `https://ecommerce.routemisr.com/api/v1/wishlist/${Id}`,
+        { headers: { token: localStorage.getItem('userToken') } }
+      );
+      toast.success(response.data.message);
+      console.log('Product removed from wishlist:', response.data);
+      
+      // إعادة اللون للمنتج المحدد فقط
+      setColor(prevColors => ({ ...prevColors, [Id]: '' }));
+      setWishlist(prevWishlist => prevWishlist.filter(item => item.id !== Id));
+    }
+  } catch (error) {
+    let errorMessage = error.response?.data?.message || "Error updating wishlist";
+    toast.error(errorMessage);
+    console.error('Error updating wishlist:', error);
+  }
+}
+
+
+
+
 export async function handleremoveTowhishlist(Id) {
   try {
     let response = await axios.post("https://ecommerce.routemisr.com/api/v1/wishlist",

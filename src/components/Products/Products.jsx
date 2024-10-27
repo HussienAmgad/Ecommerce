@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { LoadProducts, Wishlistinfproduct, addProductToCart, handleAddTowhishlist, handleremoveTowhishlist } from '../Utils/Utils'; // تأكد من مسار الاستيراد
+import { LoadProducts, Wishlistinfproduct, addProductToCart, handleTowhishlist } from '../Utils/Utils'; // تأكد من مسار الاستيراد
 import starsolid from '../../assets/star2.svg';
 import starcolor from '../../assets/star.svg';
 import starhalf from '../../assets/star-half.svg';
@@ -12,17 +12,27 @@ export default function Products() {
   let [Products, setProducts] = useState([]);
   let [searchTerm, setSearchTerm] = useState(''); // حالة لمصطلح البحث
   let [suggestions, setSuggestions] = useState([]); // حالة لتوقعات البحث
+  let [Color, setColor] = useState({});
+  let { setProductId } = useContext(ProductIdContext);
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true); // حالة تحميل البيانات
-  let { setProductId } = useContext(ProductIdContext);
 
   useEffect(() => {
     LoadProducts(setProducts);
+    
     const fetchWishlist = async () => {
       try {
-        await Wishlistinfproduct(setWishlist); // استدعاء الدالة لجلب البيانات
+        const fetchedWishlist = await Wishlistinfproduct();
+        setWishlist(fetchedWishlist); // تحديث المفضلات
+
+        // تحديث الألوان بناءً على المفضلات
+        const initialColors = {};
+        fetchedWishlist.forEach(item => {
+          initialColors[item.id] = '#ff0000'; // اللون الأحمر للمفضل
+        });
+        setColor(initialColors);
       } finally {
-        setLoading(false); // تغيير حالة التحميل بعد جلب البيانات
+        setLoading(false);
       }
     };
     fetchWishlist();
@@ -63,7 +73,7 @@ export default function Products() {
     product.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  
+
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen bg-gray-100'>
@@ -131,21 +141,12 @@ export default function Products() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-gray-900 dark:text-white">{product.price} LE</span>
-                  {wishlist.some(productinf => productinf.id === product.id) ? ( // تحقق إذا كان المنتج موجودًا في قائمة الرغبات
-                    <button
-                      onClick={() => handleAddTowhishlist(product.id)}
-                      className='flex items-center p-3 transition duration-200'
-                    >
-                      <i className="fa-solid fa-heart text-3xl" style={{ color: '#ff0000' }} />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleremoveTowhishlist(product.id)}
-                      className='flex items-center p-3 transition duration-200'
-                    >
-                      <i className="fa-solid fa-heart text-3xl"></i>
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleTowhishlist(product.id, setColor, wishlist, setWishlist)}
+                    className='flex items-center p-3 transition duration-200'
+                  >
+                    <i className="fa-solid fa-heart text-3xl" style={{ color: Color[product.id] || '' }} />
+                  </button>
                 </div>
                 <button onClick={() => addProductToCart(product.id)} className="text-white mt-5 w-full bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-500 dark:hover:bg-blue-600">Add to cart</button>
               </div>
