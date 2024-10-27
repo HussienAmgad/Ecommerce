@@ -1,21 +1,31 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { LoadProducts, addProductToCart } from '../Utils/Utils'; // تأكد من مسار الاستيراد
-import starsolid from '../../assets/star2.svg'; 
-import starcolor from '../../assets/star.svg'; 
-import starhalf from '../../assets/star-half.svg'; 
+import { LoadProducts, Wishlistinfproduct, addProductToCart, handleAddTowhishlist, handleremoveTowhishlist } from '../Utils/Utils'; // تأكد من مسار الاستيراد
+import starsolid from '../../assets/star2.svg';
+import starcolor from '../../assets/star.svg';
+import starhalf from '../../assets/star-half.svg';
 import { NavLink } from 'react-router-dom';
 import { HashLoader } from 'react-spinners';
-import { ProductIdContext } from '../Context/ProductDetails'; 
+import { ProductIdContext } from '../Context/ProductDetails';
 import { ToastContainer } from 'react-toastify';
 
 export default function Products() {
   let [Products, setProducts] = useState([]);
   let [searchTerm, setSearchTerm] = useState(''); // حالة لمصطلح البحث
   let [suggestions, setSuggestions] = useState([]); // حالة لتوقعات البحث
+  const [wishlist, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true); // حالة تحميل البيانات
   let { setProductId } = useContext(ProductIdContext);
 
   useEffect(() => {
     LoadProducts(setProducts);
+    const fetchWishlist = async () => {
+      try {
+        await Wishlistinfproduct(setWishlist); // استدعاء الدالة لجلب البيانات
+      } finally {
+        setLoading(false); // تغيير حالة التحميل بعد جلب البيانات
+      }
+    };
+    fetchWishlist();
   }, []);
 
   function setIdFunction(productId) {
@@ -26,7 +36,7 @@ export default function Products() {
   function handleInputChange(e) {
     const value = e.target.value;
     setSearchTerm(value);
-    
+
     if (value.length > 0) {
       const filteredSuggestions = Products.filter(product =>
         product.title.toLowerCase().includes(value.toLowerCase())
@@ -49,21 +59,23 @@ export default function Products() {
   }
 
   // تصفية المنتجات بناءً على مصطلح البحث
-  const filteredProducts = Products.filter(product => 
+  const filteredProducts = Products.filter(product =>
     product.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen bg-gray-100'>
       <ToastContainer />
-      
+
       {/* حقل الإدخال للبحث */}
       <div className="w-full max-w-md mb-4 flex flex-col items-center relative">
         <input
           type="text"
           placeholder="Search products..."
           value={searchTerm}
-          onChange={handleInputChange} // التغيير هنا
+          onChange={handleInputChange}
           className="w-full border border-gray-300 rounded-lg p-2"
         />
 
@@ -82,7 +94,7 @@ export default function Products() {
           </ul>
         )}
       </div>
-      
+
       {filteredProducts.length > 0 ? (
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4'>
           {filteredProducts.map(product => (
@@ -119,8 +131,23 @@ export default function Products() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-gray-900 dark:text-white">{product.price} LE</span>
-                  <button onClick={() => addProductToCart(product.id)} className="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-500 dark:hover:bg-blue-600">Add to cart</button>
+                  {wishlist.some(productinf => productinf.id === product.id) ? ( // تحقق إذا كان المنتج موجودًا في قائمة الرغبات
+                    <button
+                      onClick={() => handleAddTowhishlist(product.id)}
+                      className='flex items-center p-3 transition duration-200'
+                    >
+                      <i className="fa-solid fa-heart text-3xl" style={{ color: '#ff0000' }} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleremoveTowhishlist(product.id)}
+                      className='flex items-center p-3 transition duration-200'
+                    >
+                      <i className="fa-solid fa-heart text-3xl"></i>
+                    </button>
+                  )}
                 </div>
+                <button onClick={() => addProductToCart(product.id)} className="text-white mt-5 w-full bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-500 dark:hover:bg-blue-600">Add to cart</button>
               </div>
             </div>
           ))}
@@ -138,4 +165,5 @@ export default function Products() {
       )}
     </div>
   );
+
 }

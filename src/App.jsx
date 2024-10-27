@@ -22,6 +22,7 @@ import ProtectedRoutes from './components/ProtectedRoutes/ProtectedRoutes';
 import ProtectedRoutes2 from './components/ProtectedRoutes/ProtectedRoutesLogin';
 import { CartProvider } from './components/Context/CartContext';
 import Checkout from './components/Checkout/Checkout';
+import Whishlist from './components/Whishlist/Whishlist';
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
       { path:"cart" , element:  <ProtectedRoutes><Cart /></ProtectedRoutes>},
       { path:"checkout" , element:  <ProtectedRoutes><Checkout /></ProtectedRoutes>},
       { path:"about" , element:  <ProtectedRoutes><About /></ProtectedRoutes>},
+      { path:"whishlist" , element:  <ProtectedRoutes><Whishlist /></ProtectedRoutes>},
       { path:"categories" , element:  <ProtectedRoutes><Categories /></ProtectedRoutes>},
       { path:"brands" , element:  <ProtectedRoutes><Brands /></ProtectedRoutes>},
       { path:"products" , element:  <ProtectedRoutes><Products /></ProtectedRoutes>},

@@ -5,11 +5,13 @@ import carticon from '../../assets/cart.png';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { CartContext } from '../Context/CartContext';
 import HomeCart from '../HomeCart/HomeCart';
+import { LoadCart } from '../Utils/Utils';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  let [Loading,setLoading] = useState(true)
   const [isCheck, setIsCheck] = useState(false);
-  const [Cart, setCart] = useState({ numOfCartItems: 0 });
+  const [Cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false); // إضافة حالة جديدة للسلة
   const { cartInfo, setCartInfo } = useContext(CartContext);
   const userToken = localStorage.getItem('userToken');
@@ -17,21 +19,15 @@ export default function Navbar() {
 
   useEffect(() => {
     setIsCheck(!!userToken);
-    LoadCart();
+    const fetchCart = async () => {
+      try {
+        await LoadCart(setCart, setLoading);
+      } catch (error) {
+        console.error('Failed to load cart:', error);
+      }
+    };
+    fetchCart();
   }, [userToken]);
-
-  async function LoadCart() {
-    try {
-      let { data } = await axios.get("https://ecommerce.routemisr.com/api/v1/cart", {
-        headers: {
-          token: localStorage.getItem("userToken")
-        }
-      });
-      setCart(data);
-    } catch (error) {
-      console.error('Error loading cart data', error);
-    }
-  }
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -47,9 +43,6 @@ export default function Navbar() {
     setCartOpen((prev) => !prev); // تغيير حالة السلة
   };
 
-  function Show() {
-    setCartInfo(!cartInfo);
-  }
 
   return (
     <nav className="bg-slate-300 fixed top-0 left-0 right-0 z-50 shadow-md">
@@ -90,6 +83,9 @@ export default function Navbar() {
                       </NavLink>
                       <NavLink to="products" className="rounded-md px-2 py-1 text-sm font-medium text-black hover:bg-gray-200 hover:text-black">
                         Products
+                      </NavLink>
+                      <NavLink to="whishlist" className="rounded-md px-2 py-1 text-sm font-medium text-black hover:bg-gray-200 hover:text-black">
+                        Whishlist
                       </NavLink>
                       <NavLink to="categories" className="rounded-md px-2 py-1 text-sm font-medium text-black hover:bg-gray-200 hover:text-black">
                         Categories
@@ -150,6 +146,9 @@ export default function Navbar() {
                 </NavLink>
                 <NavLink to="products" className="block rounded-md px-2 py-1 text-base font-medium text-black hover:bg-gray-200 hover:text-black">
                   Products
+                </NavLink>
+                <NavLink to="whishlist" className="block rounded-md px-2 py-1 text-base font-medium text-black hover:bg-gray-200 hover:text-black">
+                  Whishlist
                 </NavLink>
                 <NavLink to="categories" className="block rounded-md px-2 py-1 text-base font-medium text-black hover:bg-gray-200 hover:text-black">
                   Categories
