@@ -193,7 +193,7 @@ export async function handleAddTowhishlist(Id) {
 }
 
 
-export async function handleTowhishlist(Id, setColor, wishlist, setWishlist) {
+export async function handleTowhishlist(Id, setColors, wishlist, setWishlist) {
   const isInWishlist = wishlist.some(item => item.id === Id);
 
   try {
@@ -208,7 +208,7 @@ export async function handleTowhishlist(Id, setColor, wishlist, setWishlist) {
       console.log('Product added to wishlist:', response.data);
       
       // تحديث اللون للمنتج المحدد فقط
-      setColor(prevColors => ({ ...prevColors, [Id]: '#ff0000' }));
+      setColors(prevColors => ({ ...prevColors, [Id]: '#ff0000' }));
       setWishlist(prevWishlist => [...prevWishlist, { id: Id }]);
     } else {
       // إزالة من المفضلة
@@ -220,7 +220,7 @@ export async function handleTowhishlist(Id, setColor, wishlist, setWishlist) {
       console.log('Product removed from wishlist:', response.data);
       
       // إعادة اللون للمنتج المحدد فقط
-      setColor(prevColors => ({ ...prevColors, [Id]: '' }));
+      setColors(prevColors => ({ ...prevColors, [Id]: '' }));
       setWishlist(prevWishlist => prevWishlist.filter(item => item.id !== Id));
     }
   } catch (error) {
@@ -294,5 +294,3 @@ export async function removeWishlistitem(id) {
 }
 
 // ? ----------------------------End Whislist--------------------------------//
-
-

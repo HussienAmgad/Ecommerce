@@ -22,15 +22,12 @@ export default function Products() {
     
     const fetchWishlist = async () => {
       try {
-        const fetchedWishlist = await Wishlistinfproduct();
-        setWishlist(fetchedWishlist); // تحديث المفضلات
+        const fetchedWishlist = await Wishlistinfproduct(setWishlist);
 
         // تحديث الألوان بناءً على المفضلات
-        const initialColors = {};
-        fetchedWishlist.forEach(item => {
-          initialColors[item.id] = '#ff0000'; // اللون الأحمر للمفضل
+        fetchedWishlist.map(item => {
+          setColor([item.id] = '#ff0000'); // اللون الأحمر للمفضل
         });
-        setColor(initialColors);
       } finally {
         setLoading(false);
       }
