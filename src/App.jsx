@@ -1,19 +1,15 @@
-import './App.css'; // استيراد ملف CSS الرئيسي
-
-import Home from './components/Home/Home'; // استيراد مكون Home
-import About from './components/About/About'; // استيراد مكون About
-import Brands from './components/Brands/Brands'; // استيراد مكون Brands
-import Cart from './components/Cart/Cart'; // استيراد مكون Cart
-import Categories from './components/Categories/Categories'; // استيراد مكون Categories
-// import Contact from './components/Contact/Contact'; 
-import LayOut from './components/LayOut/LayOut'; // استيراد مكون LayOut
-// import Loader from './components/Loader/Loader'; 
-import Login from './components/Login/Login'; // استيراد مكون Login
-import NotFound from './components/NotFound/NotFound'; // استيراد مكون NotFound
-// import Order from './components/Order/Order';
+import './App.css'; 
+import Home from './components/Home/Home';
+import About from './components/About/About';
+import Brands from './components/Brands/Brands';
+import Cart from './components/Cart/Cart';
+import Categories from './components/Categories/Categories';
+import LayOut from './components/LayOut/LayOut';
+import Login from './components/Login/Login';
+import NotFound from './components/NotFound/NotFound';
 import ProductDetails from './components/ProductDetails/ProductDetails';
 import Products from './components/Products/Products';
-import SignUp from './components/Register/Register'; // استيراد مكون SignUp
+import SignUp from './components/Register/Register';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Forgetpassword from './components/Forgetpassword/Forgetpassword';
 import UserTokenContextProvider from './components/Context/UserTokenContext';
@@ -25,26 +21,34 @@ import Checkout from './components/Checkout/Checkout';
 import Whishlist from './components/Whishlist/Whishlist';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import HashLoader from 'react-spinners/HashLoader';
 
 function App() {
-  let [Backdoorvalue, setBackdoorvalue] = useState();
+  const [Backdoorvalue, setBackdoorvalue] = useState();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function Backdoor() {
       try {
         let { data } = await axios.get("https://hussien-server.vercel.app/");
-        console.log(data);
         setBackdoorvalue(data.Backdoor);
-        console.log(Backdoorvalue);
       } catch (error) {
-        console.error('Error loading products', error);
+        console.error('Error loading data', error);
+      } finally {
+        setIsLoading(false);
       }
     }
-
     Backdoor();
   }, []);
 
-  let routers = createBrowserRouter([
+  // useEffect لمراقبة التغيير في Backdoorvalue
+  useEffect(() => {
+    if (Backdoorvalue === true) {
+      setIsLoading(false); // إيقاف تحميل الصفحة عند تفعيل backdoor
+    }
+  }, [Backdoorvalue]); // تنفيذ التأثير عند تغيير Backdoorvalue
+
+  const routers = createBrowserRouter([
     {
       path: "", element: <LayOut />, children: [
         { index: true, element: <ProtectedRoutes2><Login /></ProtectedRoutes2> },
@@ -65,8 +69,13 @@ function App() {
   ]);
 
   return (
+    
     <ProductIdProvider>
-      {Backdoorvalue === false ? (
+      {isLoading ? ( 
+        <div className='flex justify-center items-center h-full'>
+          <HashLoader color="#5a9aa0" />
+        </div>
+      ) : Backdoorvalue === false ? (
         <UserTokenContextProvider>
           <CartProvider>
             <RouterProvider router={routers} />
