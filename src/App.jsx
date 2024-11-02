@@ -32,7 +32,7 @@ function App() {
   useEffect(() => {
     async function Backdoor() {
       try {
-        let { data } = await axios.get("https://hussien.up.railway.app/");
+        let { data } = await axios.get("https://hussien-server.vercel.app/");
         console.log(data);
         setBackdoorvalue(data.Backdoor);
         console.log(Backdoorvalue);
